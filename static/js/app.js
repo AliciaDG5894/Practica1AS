@@ -127,6 +127,18 @@ app.controller("rentasCtrl", function ($scope, $http) {
         })
     })
 
+    $(document).on("click", "#tbodyRentas .btn-eliminar", function(){
+        const id = $(this).data("id");
+        if(confirm("¿Deseas eliminar esta renta?")) {
+            $.post("/rentas/eliminar", {id: id}, function(response){
+                console.log("Renta eliminado correctamente");
+                buscarRentas(); 
+            }).fail(function(xhr){
+                console.error("Error al eliminar renta:", xhr.responseText);
+            });
+        }
+    })
+
 // MODAL
     // $(document).on("click", ".btn-ingredientes", function (event) {
     //     const id = $(this).data("id")
@@ -225,42 +237,6 @@ app.controller("clientesCtrl", function ($scope, $http) {
 
 });
 
-
-
-// app.controller("decoracionesCtrl", function ($scope, $http) {
-//     function buscarDecoraciones() {
-//         $.get("/tbodyDecoraciones", function (trsHTML) {
-//             $("#tbodyDecoraciones").html(trsHTML)
-//         })
-//     }
-
-//     buscarDecoraciones()
-    
-//     // Enable pusher logging - don't include this in production
-//     Pusher.logToConsole = true
-
-//     var pusher = new Pusher("e57a8ad0a9dc2e83d9a2", {
-//       cluster: "us2"
-//     })
-
-//     var channel = pusher.subscribe("canalDecoraciones")
-//     channel.bind("eventoDecoraciones", function(data) {
-//         // alert(JSON.stringify(data))
-//         buscarDecoraciones()
-//     })
-
-//     $(document).on("submit", "#frmDecoracion", function (event) {
-//         event.preventDefault()
-
-//         $.post("/decoracion", {
-//             id: "",
-//             nombre: $("#txtNombre").val(),
-//             precio: $("#txtPrecio").val(),
-//             existencias: $("#txtExistencias").val(),
-//         })
-//     })
-// })
-
 const DateTime = luxon.DateTime
 let lxFechaHora
 
@@ -278,3 +254,4 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash)
 })
+
