@@ -292,48 +292,47 @@ def guardarRenta():
 
 
 # EDITAR
-# @app.route("/producto/<int:id>")
-# def editarProducto(id):
-#     if not con.is_connected():
-#         con.reconnect()
+@app.route("/renta/<int:id>")
+def editarProducto(id):
+    if not con.is_connected():
+        con.reconnect()
 
-#     cursor = con.cursor(dictionary=True)
-#     sql    = """
-#     SELECT Id_Producto, Nombre_Producto, Precio, Existencias
+    cursor = con.cursor(dictionary=True)
+    sql    = """
+    SELECT idRenta, idCliente, idTraje, descripcion, fechaHoraInicio, fechaHoraFin
 
-#     FROM productos
+    FROM rentas
 
-#     WHERE Id_Producto = %s
-#     """
-#     val    = (id,)
+    WHERE idRenta = %s
+    """
+    val    = (id,)
 
-#     cursor.execute(sql, val)
-#     registros = cursor.fetchall()
-#     con.close()
+    cursor.execute(sql, val)
+    registros = cursor.fetchall()
+    con.close()
 
-#     return make_response(jsonify(registros))
-
+    return make_response(jsonify(registros))
 
 # ELIMINAR
-# @app.route("/producto/eliminar", methods=["POST"])
-# def eliminarProducto():
-#     if not con.is_connected():
-#         con.reconnect()
+@app.route("/renta/eliminar", methods=["POST"])
+def eliminarRenta():
+    if not con.is_connected():
+        con.reconnect()
 
-#     id = request.form["id"]
+    id = request.form["id"]
 
-#     cursor = con.cursor(dictionary=True)
-#     sql    = """
-#     DELETE FROM productos
-#     WHERE Id_Producto = %s
-#     """
-#     val    = (id,)
+    cursor = con.cursor(dictionary=True)
+    sql    = """
+    DELETE FROM renta
+    WHERE idRenta = %s
+    """
+    val    = (id,)
 
-#     cursor.execute(sql, val)
-#     con.commit()
-#     con.close()
+    cursor.execute(sql, val)
+    con.commit()
+    con.close()
 
-#     return make_response(jsonify({}))
+    return make_response(jsonify({}))
 
 
 #CLIENTE
