@@ -58,6 +58,19 @@ def pusherClientes():
     pusher_client.trigger("canalClientes", "eventoClientes", {"message": "Hola Mundo!"})
     return make_response(jsonify({}))
 
+# TRAJES
+def pusherProductos():
+    import pusher
+    
+    pusher_client = pusher.Pusher(
+        app_id='2047513',
+        key='bf79fc5f8fe969b1839e',
+        secret='9b73ac4b30f41a28c732',
+        cluster='us2',
+        ssl=True
+    )
+    
+    pusher_client.trigger("canalTrajes", "eventoTrajes", {"message": "Hola Mundo!"})
 
 # RUTA
 @app.route("/")
@@ -512,3 +525,93 @@ def eliminarCliente():
     except Exception as e:
         print("Error eliminando cliente:", e)
         return make_response(jsonify({"error": str(e)}), 500)
+    
+
+# TRAJES
+
+@app.route("/trajes")
+def trajes():
+    return render_template("trajes.html")
+
+@app.route("/tbodyTrajes")
+def tbodyTrajes():
+    if not con.is_connected():
+        con.reconnect()
+    
+    cursor = con.cursor(dictionary=True)
+    sql    = """
+    SELECT IdTraje,
+           nombreTraje,
+           descripcion
+
+    FROM trajes
+
+    ORDER BY IdTraje DESC
+
+    LIMIT 10 OFFSET 0
+    """
+
+    cursor.execute(sql)
+    registros = cursor.fetchall()
+
+    # Si manejas fechas y horas
+    """
+    for registro in registros:
+        fecha_hora = registro["Fecha_Hora"]
+
+        registro["Fecha_Hora"] = fecha_hora.strftime("%Y-%m-%d %H:%M:%S")
+        registro["Fecha"]      = fecha_hora.strftime("%d/%m/%Y")
+        registro["Hora"]       = fecha_hora.strftime("%H:%M:%S")
+    """
+
+    return render_template("tbodyTrajes.html", trajes=registros)
+
+@app.route("/trajes/guardar", methods=["POST", "GET"])
+def guardarTraje():
+    if not con.is_connected():
+        con.reconnect()
+
+    if request.method == "POST":
+        data = request.get_json() or request.form
+        nombre = data.get("txtNombre")
+        descripcion = data.get("txtDescripcion")
+    else: 
+        nombre = request.args.get("nombre")
+        descripcion = request.args.get("descripcion")
+    if not nombre or not descripcion:
+        return jsonify({"error": "Faltan parámetros"}), 400
+        
+    cursor = con.cursor()
+    sql = """
+    INSERT INTO trajes (nombreTraje, descripcion)
+    VALUES (%s, %s)
+    """
+    cursor.execute(sql, (nombre, descripcion))
+    con.commit()
+    con.close()
+
+    pusherProductos()
+
+    return make_response(jsonify({"mensaje": "Traje guardado correctamente"}))
+
+@app.route("/trajes/eliminar", methods=["POST", "GET"])
+def eliminartraje():
+    if not con.is_connected():
+        con.reconnect()
+
+    if request.method == "POST":
+        IdTraje = request.form.get("id")
+    else:
+        IdTraje = request.args.get("id")
+
+    cursor = con.cursor()
+    sql = "DELETE FROM trajes WHERE IdTraje = %s"
+    val = (IdTraje,)
+
+    cursor.execute(sql, val)
+    con.commit()
+    con.close()
+
+    pusherProductos()
+
+    return make_response(jsonify({"status": "ok"}))
