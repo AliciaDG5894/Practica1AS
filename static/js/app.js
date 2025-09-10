@@ -25,6 +25,10 @@ app.config(function ($routeProvider, $locationProvider) {
         templateUrl: "/clientes",
         controller: "clientesCtrl"
     })
+    .when("/trajes", {
+        templateUrl: "/trajes",
+        controller: "trajesCtrl"
+    })
     // .when("/decoraciones", {
     //     templateUrl: "/decoraciones",
     //     controller: "decoracionesCtrl"
@@ -127,18 +131,6 @@ app.controller("rentasCtrl", function ($scope, $http) {
         })
     })
 
-    $(document).on("click", "#tbodyRentas .btn-eliminar", function(){
-        const id = $(this).data("id");
-        if(confirm("¿Deseas eliminar esta renta?")) {
-            $.post("/rentas/eliminar", {id: id}, function(response){
-                console.log("Renta eliminado correctamente");
-                buscarRentas(); 
-            }).fail(function(xhr){
-                console.error("Error al eliminar renta:", xhr.responseText);
-            });
-        }
-    })
-
 // MODAL
     // $(document).on("click", ".btn-ingredientes", function (event) {
     //     const id = $(this).data("id")
@@ -164,7 +156,7 @@ app.controller("clientesCtrl", function ($scope, $http) {
     cargarTablaClientes();
 
     Pusher.logToConsole = true;
-    var pusher = new Pusher("bf79fc5f8fe969b1839e", { cluster: "us2" });
+    var pusher = new Pusher("b51b00ad61c8006b2e6f", { cluster: "us2" });
     var channel = pusher.subscribe("canalClientes");
     channel.bind("eventoClientes", function(data) {
         cargarTablaClientes();
@@ -237,6 +229,91 @@ app.controller("clientesCtrl", function ($scope, $http) {
 
 });
 
+app.controller("trajesCtrl", function ($scope, $http) {
+    function buscarTrajes() {
+        $.get("/tbodyTrajes", function (trsHTML) {
+            $("#tbodyTrajes").html(trsHTML)
+        })
+    }
+
+    buscarTrajes()
+    
+    Pusher.logToConsole = true
+
+    var pusher = new Pusher("b51b00ad61c8006b2e6f", {
+      cluster: "us2"
+    })
+
+    var channel = pusher.subscribe("canalTrajes")
+    channel.bind("eventoTrajes", function(data) {
+        // alert(JSON.stringify(data))
+        buscarTrajes()
+    })
+
+    $scope.guardarTraje = function() {
+        $http.post("/trajes/guardar", {
+            txtNombre: $scope.txtNombre,
+            txtDescripcion: $scope.txtDescripcion
+        }).then(function(respuesta) {
+            alert(respuesta.data.mensaje);
+            $scope.txtNombre = "";
+            $scope.txtDescripcion = "";
+            buscarTrajes();
+        }, function(error) {
+            console.error(error);
+        });
+    };
+
+    $(document).on("click", "#tbodyTrajes .btn-eliminar", function(){
+        const id = $(this).data("id");
+        if(confirm("¿Deseas eliminar este traje?")) {
+            $.post("/trajes/eliminar", {id: id}, function(response){
+                console.log("Traje eliminado correctamente");
+                 buscarTrajes()
+            }).fail(function(xhr){
+                console.error("Error al eliminar traje:", xhr.responseText);
+            });
+        }
+    });
+
+})
+
+
+
+// app.controller("decoracionesCtrl", function ($scope, $http) {
+//     function buscarDecoraciones() {
+//         $.get("/tbodyDecoraciones", function (trsHTML) {
+//             $("#tbodyDecoraciones").html(trsHTML)
+//         })
+//     }
+
+//     buscarDecoraciones()
+    
+//     // Enable pusher logging - don't include this in production
+//     Pusher.logToConsole = true
+
+//     var pusher = new Pusher("e57a8ad0a9dc2e83d9a2", {
+//       cluster: "us2"
+//     })
+
+//     var channel = pusher.subscribe("canalDecoraciones")
+//     channel.bind("eventoDecoraciones", function(data) {
+//         // alert(JSON.stringify(data))
+//         buscarDecoraciones()
+//     })
+
+//     $(document).on("submit", "#frmDecoracion", function (event) {
+//         event.preventDefault()
+
+//         $.post("/decoracion", {
+//             id: "",
+//             nombre: $("#txtNombre").val(),
+//             precio: $("#txtPrecio").val(),
+//             existencias: $("#txtExistencias").val(),
+//         })
+//     })
+// })
+
 const DateTime = luxon.DateTime
 let lxFechaHora
 
@@ -254,4 +331,3 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash)
 })
-
