@@ -21,6 +21,10 @@ app.config(function ($routeProvider, $locationProvider) {
         templateUrl: "/rentas",
         controller: "rentasCtrl"
     })
+    .when("/clientes", {
+        templateUrl: "/clientes",
+        controller: "clientesCtrl"
+    })
     // .when("/decoraciones", {
     //     templateUrl: "/decoraciones",
     //     controller: "decoracionesCtrl"
@@ -68,6 +72,7 @@ app.run(["$rootScope", "$location", "$timeout", function($rootScope, $location, 
         }
     })
 }])
+
 // CAMBIAR EN BASE QUE VISTA VA PRIMERO(esta rentas)
 app.controller("appCtrl", function ($scope, $http) {
     $("#frmInicioSesion").submit(function (event) {
@@ -136,6 +141,90 @@ app.controller("rentasCtrl", function ($scope, $http) {
     // })
 })
 
+app.controller("clientesCtrl", function ($scope, $http) {
+
+    function cargarTablaClientes() {
+        $.get("/tbodyClientes", function(html) {
+            $("#tbodyClientes").html(html);
+        });
+    }
+
+    cargarTablaClientes();
+
+    Pusher.logToConsole = true;
+    var pusher = new Pusher("bf79fc5f8fe969b1839e", { cluster: "us2" });
+    var channel = pusher.subscribe("canalClientes");
+    channel.bind("eventoClientes", function(data) {
+        cargarTablaClientes();
+    });
+
+     $(document).on("click", "#btnBuscarCliente", function() {
+        const busqueda = $("#txtBuscarCliente").val().trim();
+
+        if(busqueda === "") {
+            cargarTablaClientes();
+            return;
+        }
+
+        $.get("/api/clientes/buscar", { busqueda: busqueda }, function(registros) {
+            let trsHTML = "";
+            registros.forEach(cliente => {
+                trsHTML += `
+                    <tr>
+                        <td>${cliente.idCliente}</td>
+                        <td>${cliente.nombreCliente}</td>
+                        <td>${cliente.telefono}</td>
+                        <td>${cliente.correoElectronico}</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm btn-eliminar" data-id="${cliente.idCliente}">Eliminar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            $("#tbodyClientes").html(trsHTML);
+        }).fail(function(xhr){
+            console.error("Error al buscar clientes:", xhr.responseText);
+        });
+    });
+
+    // Permitir Enter en input
+    $("#txtBuscarCliente").on("keypress", function(e) {
+        if(e.which === 13) {
+            $("#btnBuscarCliente").click();
+        }
+    });
+
+    $(document).on("submit", "#frmCliente", function (event) {
+        event.preventDefault();
+
+        $.post("/cliente", {
+            id: "",
+            nombreCliente: $("#txtNombreCliente").val(),
+            telefono: $("#txtTelefono").val(),
+            correoElectronico: $("#txtCorreoElectronico").val(),
+        }, function(response){
+            console.log("Cliente guardado correctamente");
+            $("#frmCliente")[0].reset();
+            cargarTablaClientes(); 
+        }).fail(function(xhr){
+            console.error("Error al guardar cliente:", xhr.responseText);
+        });
+    });
+
+    $(document).on("click", "#tbodyClientes .btn-eliminar", function(){
+        const id = $(this).data("id");
+        if(confirm("¿Deseas eliminar este cliente?")) {
+            $.post("/clientes/eliminar", {id: id}, function(response){
+                console.log("Cliente eliminado correctamente");
+                cargarTablaClientes(); 
+            }).fail(function(xhr){
+                console.error("Error al eliminar cliente:", xhr.responseText);
+            });
+        }
+    });
+
+});
+
 
 
 // app.controller("decoracionesCtrl", function ($scope, $http) {
@@ -189,4 +278,3 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash)
 })
-
