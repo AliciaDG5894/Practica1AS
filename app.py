@@ -48,11 +48,11 @@ def pusherClientes():
     import pusher
     
     pusher_client = pusher.Pusher(
-        app_id='2047513',
-        key='bf79fc5f8fe969b1839e',
-        secret='9b73ac4b30f41a28c732',
-        cluster='us2',
-        ssl=True
+    app_id="2046017",
+    key="b51b00ad61c8006b2e6f",
+    secret="d2ec35aa5498a18af7bf",
+    cluster="us2",
+    ssl=True
     )
     
     pusher_client.trigger("canalClientes", "eventoClientes", {"message": "Hola Mundo!"})
@@ -63,11 +63,11 @@ def pusherProductos():
     import pusher
     
     pusher_client = pusher.Pusher(
-        app_id='2047513',
-        key='bf79fc5f8fe969b1839e',
-        secret='9b73ac4b30f41a28c732',
-        cluster='us2',
-        ssl=True
+    app_id="2046017",
+    key="b51b00ad61c8006b2e6f",
+    secret="d2ec35aa5498a18af7bf",
+    cluster="us2",
+    ssl=True
     )
     
     pusher_client.trigger("canalTrajes", "eventoTrajes", {"message": "Hola Mundo!"})
@@ -336,7 +336,7 @@ def eliminarRenta():
 
     cursor = con.cursor(dictionary=True)
     sql    = """
-    DELETE FROM renta
+    DELETE FROM rentas
     WHERE idRenta = %s
     """
     val    = (id,)
@@ -615,3 +615,4 @@ def eliminartraje():
     pusherProductos()
 
     return make_response(jsonify({"status": "ok"}))
+
