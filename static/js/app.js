@@ -130,19 +130,19 @@ app.controller("rentasCtrl", function ($scope, $http) {
 
         })
     })
+    
+    $(document).on("click", "#tbodyRentas .btn-eliminar", function(){
+        const id = $(this).data("id");
+        if(confirm("¿Deseas eliminar esta renta?")) {
+            $.post("/renta/eliminar", {id: id}, function(response){
+                console.log("Renta eliminado correctamente");
+                buscarRentas(); 
+            }).fail(function(xhr){
+                console.error("Error al eliminar renta:", xhr.responseText);
+            })
+        }
+    })
 
-// MODAL
-    // $(document).on("click", ".btn-ingredientes", function (event) {
-    //     const id = $(this).data("id")
-
-    //     $.get(`/productos/ingredientes/${id}`, function (html) {
-    //         modal(html, "Ingredientes", [
-    //             {html: "Aceptar", class: "btn btn-secondary", fun: function (event) {
-    //                 closeModal()
-    //             }}
-    //         ])
-    //     })
-    // })
 })
 
 app.controller("clientesCtrl", function ($scope, $http) {
@@ -331,3 +331,4 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash)
 })
+
