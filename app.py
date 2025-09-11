@@ -347,6 +347,8 @@ def eliminarRenta():
 
     return make_response(jsonify({}))
 
+     pusherRentas()
+
 
 #CLIENTE
 
@@ -615,4 +617,5 @@ def eliminartraje():
     pusherProductos()
 
     return make_response(jsonify({"status": "ok"}))
+
 
