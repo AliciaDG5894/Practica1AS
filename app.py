@@ -390,7 +390,7 @@ def tbodyClientes():
 
     return render_template("tbodyClientes.html", clientes=registros)
 
-@app.route("/api/clientes/buscar", methods=["GET"])
+@app.route("/clientes/buscar", methods=["GET"])
 def buscarClientes():
     if not con.is_connected():
         con.reconnect()
@@ -617,6 +617,7 @@ def eliminartraje():
     pusherProductos()
 
     return make_response(jsonify({"status": "ok"}))
+
 
 
 
