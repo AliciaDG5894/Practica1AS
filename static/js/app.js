@@ -170,7 +170,7 @@ app.controller("clientesCtrl", function ($scope, $http) {
             return;
         }
 
-        $.get("/api/clientes/buscar", { busqueda: busqueda }, function(registros) {
+        $.get("/clientes/buscar", { busqueda: busqueda }, function(registros) {
             let trsHTML = "";
             registros.forEach(cliente => {
                 trsHTML += `
@@ -331,4 +331,5 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash)
 })
+
 
