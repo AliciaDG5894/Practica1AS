@@ -147,26 +147,25 @@ app.controller("rentasCtrl", function ($scope, $http) {
 
 app.controller("clientesCtrl", function ($scope, $http) {
 
-    function cargarTablaClientes() {
+    function cargarClientes() {
         $.get("/tbodyClientes", function(html) {
             $("#tbodyClientes").html(html);
         });
     }
-
-    cargarTablaClientes();
+    cargarClientes();
 
     Pusher.logToConsole = true;
     var pusher = new Pusher("b51b00ad61c8006b2e6f", { cluster: "us2" });
     var channel = pusher.subscribe("canalClientes");
     channel.bind("eventoClientes", function(data) {
-        cargarTablaClientes();
+        cargarClientes();
     });
 
      $(document).on("click", "#btnBuscarCliente", function() {
         const busqueda = $("#txtBuscarCliente").val().trim();
 
         if(busqueda === "") {
-            cargarTablaClientes();
+            cargarClientes();
             return;
         }
 
@@ -209,7 +208,7 @@ app.controller("clientesCtrl", function ($scope, $http) {
         }, function(response){
             console.log("Cliente guardado correctamente");
             $("#frmCliente")[0].reset();
-            cargarTablaClientes(); 
+            cargarClientes(); 
         }).fail(function(xhr){
             console.error("Error al guardar cliente:", xhr.responseText);
         });
@@ -220,7 +219,7 @@ app.controller("clientesCtrl", function ($scope, $http) {
         if(confirm("¿Deseas eliminar este cliente?")) {
             $.post("/clientes/eliminar", {id: id}, function(response){
                 console.log("Cliente eliminado correctamente");
-                cargarTablaClientes(); 
+                cargarClientes(); 
             }).fail(function(xhr){
                 console.error("Error al eliminar cliente:", xhr.responseText);
             });
@@ -331,5 +330,6 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash)
 })
+
 
 
