@@ -480,7 +480,9 @@ def editarClientes(id):
 
 @app.route("/clientes/eliminar", methods=["POST"])
 def eliminarCliente():
-    con = con_pool.get_connection()
+    try:
+        con = con_pool.get_connection()
+        cursor = con.cursor()
 
         idCliente = request.form.get("id")
 
@@ -654,6 +656,7 @@ def buscarTrajes():
         con.close()
 
     return make_response(jsonify(registros))
+
 
 
 
