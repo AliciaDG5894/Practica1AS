@@ -309,37 +309,32 @@ def clientes():
 
 @app.route("/tbodyClientes")
 def tbodyClientes():
-    if not con.is_connected():
-        con.reconnect()
+    try:
+        con = con_pool.get_connection()
+        cursor = con.cursor(dictionary=True)
 
-    cursor = con.cursor(dictionary=True)
-    sql    = """
-    SELECT idCliente,
-           nombreCliente,
-           telefono,
-           correoElectronico
+        sql = """
+        SELECT idCliente, nombreCliente, telefono, correoElectronico
+        FROM clientes
+        ORDER BY idCliente DESC
+        LIMIT 10 OFFSET 0
+        """
 
-    FROM clientes
+        cursor.execute(sql)
+        registros = cursor.fetchall()
 
-    ORDER BY idCliente DESC
+        # Aquí puedes devolver HTML renderizado o JSON
+        return render_template("tbodyClientes.html", clientes=registros)
 
-    LIMIT 10 OFFSET 0
-    """
+    except Exception as e:
+        print("Error en /tbodyClientes:", e)
+        return make_response(jsonify({"error": str(e)}), 500)
 
-    cursor.execute(sql)
-    registros = cursor.fetchall()
-
-    # Si manejas fechas y horas
-    """
-    for registro in registros:
-        fecha_hora = registro["Fecha_Hora"]
-
-        registro["Fecha_Hora"] = fecha_hora.strftime("%Y-%m-%d %H:%M:%S")
-        registro["Fecha"]      = fecha_hora.strftime("%d/%m/%Y")
-        registro["Hora"]       = fecha_hora.strftime("%H:%M:%S")
-    """
-
-    return render_template("tbodyClientes.html", clientes=registros)
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
 
 @app.route("/clientes/buscar", methods=["GET"])
 def buscarClientes():
@@ -633,5 +628,6 @@ def buscarTrajes():
         con.close()
 
     return make_response(jsonify(registros))
+
 
 
