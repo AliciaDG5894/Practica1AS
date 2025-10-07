@@ -153,92 +153,6 @@
     </defs>
   </svg>
 
-  <div class="preloader text-white fs-6 text-uppercase overflow-hidden"></div>
-
-  <div class="search-popup">
-    <div class="search-popup-container">
-
-      <form role="search" method="get" class="form-group" action="">
-        <input type="search" id="search-form" class="form-control border-0 border-bottom"
-          placeholder="Type and press enter" value="" name="s" />
-        <button type="submit" class="search-submit border-0 position-absolute bg-white"
-          style="top: 15px;right: 15px;"><svg class="search" width="24" height="24">
-            <use xlink:href="#search"></use>
-          </svg></button>
-      </form>
-      
-      <h5 class="cat-list-title">Browse Categories</h5>
-
-      <ul class="cat-list">
-        <li class="cat-list-item">
-          <a href="#" title="Jackets">Jackets</a>
-        </li>
-        <li class="cat-list-item">
-          <a href="#" title="T-shirts">T-shirts</a>
-        </li>
-        <li class="cat-list-item">
-          <a href="#" title="Handbags">Handbags</a>
-        </li>
-        <li class="cat-list-item">
-          <a href="#" title="Accessories">Accessories</a>
-        </li>
-        <li class="cat-list-item">
-          <a href="#" title="Cosmetics">Cosmetics</a>
-        </li>
-        <li class="cat-list-item">
-          <a href="#" title="Dresses">Dresses</a>
-        </li>
-        <li class="cat-list-item">
-          <a href="#" title="Jumpsuits">Jumpsuits</a>
-        </li>
-      </ul>
-
-    </div>
-  </div>
-
-  <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="offcanvasCart" aria-labelledby="My Cart">
-    <div class="offcanvas-header justify-content-center">
-      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body">
-      <div class="order-md-last">
-        <h4 class="d-flex justify-content-between align-items-center mb-3">
-          <span class="text-primary">Your cart</span>
-          <span class="badge bg-primary rounded-pill">3</span>
-        </h4>
-        <ul class="list-group mb-3">
-          <li class="list-group-item d-flex justify-content-between lh-sm">
-            <div>
-              <h6 class="my-0">Growers cider</h6>
-              <small class="text-body-secondary">Brief description</small>
-            </div>
-            <span class="text-body-secondary">$12</span>
-          </li>
-          <li class="list-group-item d-flex justify-content-between lh-sm">
-            <div>
-              <h6 class="my-0">Fresh grapes</h6>
-              <small class="text-body-secondary">Brief description</small>
-            </div>
-            <span class="text-body-secondary">$8</span>
-          </li>
-          <li class="list-group-item d-flex justify-content-between lh-sm">
-            <div>
-              <h6 class="my-0">Heinz tomato ketchup</h6>
-              <small class="text-body-secondary">Brief description</small>
-            </div>
-            <span class="text-body-secondary">$5</span>
-          </li>
-          <li class="list-group-item d-flex justify-content-between">
-            <span>Total (USD)</span>
-            <strong>$20</strong>
-          </li>
-        </ul>
-
-        <button class="w-100 btn btn-primary btn-lg" type="submit">Continue to Checkout</button>
-      </div>
-    </div>
-  </div>
-
   <nav class="navbar navbar-expand-lg bg-light text-uppercase fs-6 p-3 border-bottom align-items-center">
     <div class="container-fluid">
       <div class="row justify-content-between align-items-center w-100">
@@ -268,9 +182,8 @@
 
             <div class="offcanvas-body">
               <ul class="navbar-nav justify-content-end flex-grow-1 gap-1 gap-md-5 pe-3">
-                <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle active" href="#" id="dropdownHome" data-bs-toggle="dropdown"
-                    aria-haspopup="true" aria-expanded="false">Inicio</a>
+                <li class="nav-item">
+                  <a class="nav-link" href="#">Home</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" href="./dashboard">App</a>
@@ -279,38 +192,6 @@
             </div>
           </div>
         </div>
-
-        <div class="col-3 col-lg-auto">
-          <ul class="list-unstyled d-flex m-0">
-            <li class="d-none d-lg-block">
-              <a href="{{ url_for('landingPage') }}" class="text-uppercase mx-3">Rentar <span class="wishlist-count"></span>
-              </a>
-            </li>
-            <li class="d-lg-none">
-              <a href="#" class="mx-2">
-                <svg width="24" height="24" viewBox="0 0 24 24">
-                  <use xlink:href="#heart"></use>
-                </svg>
-              </a>
-            </li>
-            <li class="d-lg-none">
-              <a href="#" class="mx-2" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart"
-                aria-controls="offcanvasCart">
-                <svg width="24" height="24" viewBox="0 0 24 24">
-                  <use xlink:href="#cart"></use>
-                </svg>
-              </a>
-            </li>
-            <li class="search-box" class="mx-2">
-              <a href="#search" class="search-button">
-                <svg width="24" height="24" viewBox="0 0 24 24">
-                  <use xlink:href="#search"></use>
-                </svg>
-              </a>
-            </li>
-          </ul>
-        </div>
-
       </div>
 
     </div>
@@ -446,13 +327,91 @@
             <svg width="38" height="38" viewBox="0 0 24 24">
               <use xlink:href="#shopping-bag"></use>
             </svg>
-            <h4 class="element-title text-capitalize my-3">Trajes</h4>
+            <h4 class="element-title text-capitalize my-3">Tienda</h4>
+          </div>
+        </div>
+        <div class="col-md-3 text-center" data-aos="fade-in" data-aos-delay="600">
+          <div class="py-5">
+            <svg width="38" height="38" viewBox="0 0 24 24">
+              <use xlink:href="#gift"></use>
+            </svg>
+            <h4 class="element-title text-capitalize my-3">Dia especial</h4>
+          </div>
+        </div>
+        <div class="col-md-3 text-center" data-aos="fade-in" data-aos-delay="900">
+          <div class="py-5">
+            <svg width="38" height="38" viewBox="0 0 24 24">
+              <use xlink:href="#arrow-cycle"></use>
+            </svg>
+            <h4 class="element-title text-capitalize my-3">Velocidad en venta</h4>
           </div>
         </div>
       </div>
     </div>
   </section>
 
+  <section class="collection bg-light position-relative py-5">
+    <div class="container">
+      <div class="row">
+        <div class="title-xlarge text-uppercase txt-fx domino">Collection</div>
+        <div class="collection-item d-flex flex-wrap my-5">
+          <div class="col-md-6 column-container">
+            <div class="image-holder">
+              <img src="{{ url_for('static', filename='landing-page/images/single-image-2.jpg') }}" alt="collection" class="product-image img-fluid">
+            </div>
+          </div>
+          <div class="col-md-6 column-container bg-white">
+            <div class="collection-content p-5 m-0 m-md-5">
+              <h3 class="element-title text-uppercase">Collecion de trajes</h3>
+              <p>Nuestro catálogo incluye trajes clásicos, modernos y de etiqueta, todos cuidadosamente seleccionados para garantizar calidad, comodidad y estilo. Además, ofrecemos accesorios como corbatas, moños, camisas y chalecos para que tu look esté completo y en perfecta armonía..</p>
+              <a href="#" class="btn btn-dark text-uppercase mt-3">Comprar Coleccion</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="logo-bar py-5 my-5">
+    <div class="container">
+      <div class="row">
+        <div class="logo-content d-flex flex-wrap justify-content-between">
+          <img src="{{ url_for('static', filename='landing-page/images/logo1.png') }}" alt="logo" class="logo-image img-fluid">
+          <img src="{{ url_for('static', filename='landing-page/images/logo2.png') }}" alt="logo" class="logo-image img-fluid">
+          <img src="{{ url_for('static', filename='landing-page/images/logo3.png') }}" alt="logo" class="logo-image img-fluid">
+          <img src="{{ url_for('static', filename='landing-page/images/logo4.png') }}" alt="logo" class="logo-image img-fluid">
+          <img src="{{ url_for('static', filename='landing-page/images/logo5.png') }}" alt="logo" class="logo-image img-fluid">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer id="footer" class="mt-5">
+    <div class="border-top py-4">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-6 d-flex flex-wrap">
+            <div class="shipping">
+              <span>We ship with:</span>
+              <img src="'{{ url_for('static', filename='landing-page/images/arct-icon.png') }}'" alt="icon">
+              <img src="'{{ url_for('static', filename='landing-page/images/dhl-logo.png') }}'" alt="icon">
+            </div>
+            <div class="payment-option">
+              <span>Payment Option:</span>
+              <img src="'{{ url_for('static', filename='landing-page/images/visa-card.png') }}'" alt="card">
+              <img src="'{{ url_for('static', filename='landing-page/images/paypal-card.png') }}'" alt="card">
+              <img src="'{{ url_for('static', filename='landing-page/images/master-card.png') }}'" alt="card">
+            </div>
+          </div>
+          <div class="col-md-6 text-end">
+            <p>© Copyright 2022 Kaira. All rights reserved. Design by <a href="https://templatesjungle.com"
+                target="_blank">TemplatesJungle</a> Distribution By <a href="https://themewagon.com"
+              target="blank">ThemeWagon</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
   <script src="{{ url_for('static', filename='landing-page/js/jquery.min.js') }}"></script>
   <script src="{{ url_for('static', filename='landing-page/js/plugins.js') }}"></script>
   <script src="{{ url_for('static', filename='landing-page/js/SmoothScroll.js') }}"></script>
@@ -464,4 +423,3 @@
 </body>
 
 </html>
-
