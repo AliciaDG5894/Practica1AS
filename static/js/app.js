@@ -755,9 +755,114 @@ app.controller("clientesCtrl", function ($scope, $http) {
         btnGuardar.text("Actualizar");
         btnGuardar.removeClass("btn-primary").addClass("btn-success");
     });
-
-
 });
+
+app.controller("trajesCtrl", function ($scope, $http) {
+    function buscarTrajes() {
+        $.get("/tbodyTrajes", function (trsHTML) {
+            $("#tbodyTrajes").html(trsHTML)
+        })
+    }
+    function editarTraje(id) {
+        fetch(`/trajes/${id}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.length > 0) {      
+                    const traje = data[0];
+                    document.getElementById('txtNombre').value = traje.nombreTraje;
+                    document.getElementById('txtDescripcion').value = traje.descripcion;
+                    document.getElementById('txtIdTraje').value = traje.IdTraje;
+                    $scope.txtNombre = traje.nombreTraje;
+                    $scope.txtDescripcion = traje.descripcion;
+                    $scope.txtIdTraje = traje.IdTraje;
+                    $scope.$apply();
+                }
+            });
+    }
+
+    buscarTrajes()
+    
+    Pusher.logToConsole = true
+
+    var pusher = new Pusher("b51b00ad61c8006b2e6f", {
+      cluster: "us2"
+    })
+
+    var channel = pusher.subscribe("canalTrajes")
+    channel.bind("eventoTrajes", function(data) {
+        buscarTrajes()
+    })
+    
+    $(document).on("click", "#tbodyTrajes .btn-modificar", function(){
+        const id = $(this).data("id");
+        editarTraje(id);
+    });
+    $scope.txtIdTraje = null;
+    $scope.guardarTraje = function() {
+    $http.post("/trajes/guardar", {
+            IdTraje: $scope.txtIdTraje,
+            txtNombre: $scope.txtNombre,
+            txtDescripcion: $scope.txtDescripcion
+        }).then(function(respuesta) {
+            alert(respuesta.data.mensaje);
+            $scope.txtNombre = "";
+            $scope.txtDescripcion = "";
+            $scope.txtIdTraje = null;
+            buscarTrajes();
+        }, function(error) {
+            console.error(error);
+        });
+    };
+
+    $(document).on("click", "#btnBuscarTrajes", function() {
+    const busqueda = $("#txtBuscarTrajes").val().trim();
+
+    if (busqueda === "") {
+        buscarTrajes(); 
+        return;
+    }
+
+    $.get("/trajes/buscar", { busqueda: busqueda }, function(registros) {
+        let trsHTML = "";
+        registros.forEach(traje => {
+            trsHTML += `
+                <tr>
+                    <td>${traje.IdTraje}</td>
+                    <td>${traje.nombreTraje}</td>
+                    <td>${traje.descripcion}</td>
+                    <td>
+                        <button class="btn btn-danger btn-eliminar" data-id="${traje.IdTraje}">Eliminar</button>
+                    </td>
+                    <td>
+                        <button class="btn btn-warning btn-modificar" data-id="${traje.IdTraje}">Modificar</button>
+                    </td>
+                </tr>
+            `;
+        });
+        $("#tbodyTrajes").html(trsHTML);
+    }).fail(function(xhr){
+        console.error("Error al buscar trajes:", xhr.responseText);
+    });
+});
+
+$("#txtBuscarTrajes").on("keypress", function(e) {
+    if(e.which === 13) {
+        $("#btnBuscarTrajes").click();
+    }
+});
+
+    $(document).on("click", "#tbodyTrajes .btn-eliminar", function(){
+        const id = $(this).data("id");
+        if(confirm("¿Deseas eliminar este traje?")) {
+            $.post("/trajes/eliminar", {id: id}, function(response){
+                console.log("Traje eliminado correctamente");
+                 buscarTrajes()
+            }).fail(function(xhr){
+                console.error("Error al eliminar traje:", xhr.responseText);
+            });
+        }
+    });
+})
 
 app.controller("productosCtrl", function ($scope, $http, $rootScope) {
     function buscarProductos() {
@@ -895,5 +1000,6 @@ app.controller("decoracionesCtrl", function ($scope, $http) {
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
+
 
 
