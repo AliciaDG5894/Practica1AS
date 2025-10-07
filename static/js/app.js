@@ -548,6 +548,112 @@ app.controller("loginCtrl", function ($scope, $http, $rootScope) {
         disableAll()
     })
 })
+
+app.controller("clientesCtrl", function ($scope, $http) {
+
+    function cargarTablaClientes() {
+        $.get("/tbodyClientes", function(html) {
+            $("#tbodyClientes").html(html);
+        });
+    }
+
+    cargarTablaClientes();
+
+    Pusher.logToConsole = true;
+    var pusher = new Pusher("bf79fc5f8fe969b1839e", { cluster: "us2" });
+    var channel = pusher.subscribe("canalClientes");
+    channel.bind("eventoClientes", function(data) {
+        cargarTablaClientes();
+    });
+
+     $(document).on("click", "#btnBuscarCliente", function() {
+        const busqueda = $("#txtBuscarCliente").val().trim();
+
+        if(busqueda === "") {
+            cargarTablaClientes();
+            return;
+        }
+
+        $.get("/clientes/buscar", { busqueda: busqueda }, function(registros) {
+            let trsHTML = "";
+            registros.forEach(cliente => {
+                trsHTML += `
+                    <tr>
+                        <td>${cliente.idCliente}</td>
+                        <td>${cliente.nombreCliente}</td>
+                        <td>${cliente.telefono}</td>
+                        <td>${cliente.correoElectronico}</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm btn-eliminar" data-id="${cliente.idCliente}">Eliminar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            $("#tbodyClientes").html(trsHTML);
+        }).fail(function(xhr){
+            console.error("Error al buscar clientes:", xhr.responseText);
+        });
+    });
+
+    // Permitir Enter en input
+    $("#txtBuscarCliente").on("keypress", function(e) {
+        if(e.which === 13) {
+            $("#btnBuscarCliente").click();
+        }
+    });
+
+    $(document).on("submit", "#frmCliente", function (event) {
+        event.preventDefault();
+
+        const idCliente = $("#idCliente").val(); 
+
+        $.post("/cliente", {
+            idCliente: idCliente,
+            nombreCliente: $("#txtNombreCliente").val(),
+            telefono: $("#txtTelefono").val(),
+            correoElectronico: $("#txtCorreoElectronico").val()
+        }, function(response){
+            console.log("Cliente guardado o actualizado correctamente");
+            $("#frmCliente")[0].reset();
+            $("#idCliente").val(""); // limpiar campo oculto
+            cargarTablaClientes(); 
+        }).fail(function(xhr){
+            console.error("Error al guardar/actualizar cliente:", xhr.responseText);
+        });
+
+    });
+
+    $(document).on("click", "#tbodyClientes .btn-eliminar", function(){
+        const id = $(this).data("id");
+        if(confirm("¿Deseas eliminar este cliente?")) {
+            $.post("/clientes/eliminar", {id: id}, function(response){
+                console.log("Cliente eliminado correctamente");
+                cargarTablaClientes(); 
+            }).fail(function(xhr){
+                console.error("Error al eliminar cliente:", xhr.responseText);
+            });
+        }
+    });
+        
+    $(document).on("click", "#tbodyClientes .btn-editar", function() {
+        const id = $(this).data("id");
+        const nombre = $(this).data("nombre");
+        const telefono = $(this).data("telefono");
+        const correo = $(this).data("correo");
+
+        $("#idCliente").val(id);
+        $("#txtNombreCliente").val(nombre);
+        $("#txtTelefono").val(telefono);
+        $("#txtCorreoElectronico").val(correo);
+
+        const btnGuardar = $("#btnGuardar");
+        btnGuardar.text("Actualizar");
+        btnGuardar.removeClass("btn-primary").addClass("btn-success");
+    });
+
+
+});
+
 app.controller("productosCtrl", function ($scope, $http, $rootScope) {
     function buscarProductos() {
         $("#tbodyProductos").html(`<tr>
@@ -684,3 +790,4 @@ app.controller("decoracionesCtrl", function ($scope, $http) {
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
+
