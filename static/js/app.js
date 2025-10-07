@@ -669,7 +669,7 @@ app.controller("clientesCtrl", function ($scope, $http) {
     cargarTablaClientes();
 
     Pusher.logToConsole = true;
-    var pusher = new Pusher("bf79fc5f8fe969b1839e", { cluster: "us2" });
+    var pusher = new Pusher("b51b00ad61c8006b2e6f", { cluster: "us2" });
     var channel = pusher.subscribe("canalClientes");
     channel.bind("eventoClientes", function(data) {
         cargarTablaClientes();
@@ -1004,6 +1004,7 @@ app.controller("decoracionesCtrl", function ($scope, $http) {
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
+
 
 
 
