@@ -199,6 +199,17 @@ def buscarRentas():
         cursor.execute(sql, val)
         registros = cursor.fetchall()
 
+        for registro in registros:
+            inicio = registro["fechaHoraInicio"]
+            fin = registro["fechaHoraFin"]
+
+            registro["fechaInicioFormato"] = inicio.strftime("%d/%m/%Y")
+            registro["horaInicioFormato"]  = inicio.strftime("%H:%M:%S")
+
+            registro["fechaFinFormato"] = fin.strftime("%d/%m/%Y")
+            registro["horaFinFormato"]  = fin.strftime("%H:%M:%S")
+    
+
     except mysql.connector.errors.ProgrammingError as error:
         registros = []
 
@@ -209,7 +220,6 @@ def buscarRentas():
             con.close()
 
     return make_response(jsonify(registros))
-
 
 @app.route("/renta", methods=["POST"])
 @login
@@ -624,6 +634,7 @@ def buscarTrajes():
         con.close()
 
     return make_response(jsonify(registros))
+
 
 
 
