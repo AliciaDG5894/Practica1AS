@@ -301,8 +301,6 @@ def eliminarRenta():
 
     return make_response(jsonify({}))
 
-# CLIENTES
-
 @app.route("/clientes")
 def clientes():
     return render_template("clientes.html")
@@ -336,15 +334,17 @@ def tbodyClientes():
         if con and con.is_connected():
             con.close()
 
+
 @app.route("/clientes/buscar", methods=["GET"])
 def buscarClientes():
-    try:
-        con = con_pool.get_connection()
-        cursor = con.cursor(dictionary=True)
+    if not con.is_connected():
+        con.reconnect()
 
-        busqueda = request.args.get("busqueda", "")
-        busqueda = f"%{busqueda}%"
+    args     = request.args
+    busqueda = args["busqueda"]
+    busqueda = f"%{busqueda}%"
     
+    cursor = con.cursor(dictionary=True)
     sql    = """
     SELECT idCliente,
            nombreCliente,
@@ -377,15 +377,12 @@ def buscarClientes():
             registro["Hora"]       = fecha_hora.strftime("%H:%M:%S")
         """
 
-    except Exception as e:
-        print("Error buscando clientes:", e)
-        return make_response(jsonify({"error": str(e)}), 500)
+    except mysql.connector.errors.ProgrammingError as error:
+        print(f"Ocurrió un error de programación en MySQL: {error}")
+        registros = []
 
     finally:
-        if cursor:
-            cursor.close()
-        if con and con.is_connected():
-            con.close()
+        cursor.close()
 
     return make_response(jsonify(registros))
 
@@ -393,9 +390,8 @@ def buscarClientes():
 # Usar cuando solo se quiera usar CORS en rutas específicas
 # @cross_origin()
 def guardarCliente():
-    try:
-        con = con_pool.get_connection()
-        cursor = con.cursor()
+    if not con.is_connected():
+        con.reconnect()
 
     idCliente = request.form.get("idCliente")
     nombre      = request.form["nombreCliente"]
@@ -432,22 +428,12 @@ def guardarCliente():
     
     return make_response(jsonify({}))
 
-    except Exception as e:
-        print("Error guardando cliente:", e)
-        return make_response(jsonify({"error": str(e)}), 500)
-
-    finally:
-        if cursor:
-            cursor.close()
-        if con and con.is_connected():
-            con.close()
-
 @app.route("/cliente/<int:id>")
 def editarClientes(id):
-    try:
-        con = con_pool.get_connection()
-        cursor = con.cursor(dictionary=True)
+    if not con.is_connected():
+        con.reconnect()
 
+    cursor = con.cursor(dictionary=True)
     sql    = """
     SELECT idCliente, nombreCliente, telefono, correoElectronico
 
@@ -463,24 +449,15 @@ def editarClientes(id):
 
     return make_response(jsonify(registros))
 
-    except Exception as e:
-        print("Error obteniendo cliente:", e)
-        return make_response(jsonify({"error": str(e)}), 500)
-
-    finally:
-        if cursor:
-            cursor.close()
-        if con and con.is_connected():
-            con.close()
-
 @app.route("/clientes/eliminar", methods=["POST"])
 def eliminarCliente():
     try:
-        con = con_pool.get_connection()
-        cursor = con.cursor()
+        if not con.is_connected():
+            con.reconnect()
 
         idCliente = request.form.get("id")
 
+        cursor = con.cursor()
         sql = "DELETE FROM clientes WHERE idCliente = %s"
         val = (idCliente,)
 
@@ -495,12 +472,6 @@ def eliminarCliente():
     except Exception as e:
         print("Error eliminando cliente:", e)
         return make_response(jsonify({"error": str(e)}), 500)
-
-    finally:
-        if cursor:
-            cursor.close()
-        if con and con.is_connected():
-            con.close()
 
 # TRAJES
 @app.route("/trajes")
@@ -656,6 +627,7 @@ def buscarTrajes():
         con.close()
 
     return make_response(jsonify(registros))
+
 
 
 
