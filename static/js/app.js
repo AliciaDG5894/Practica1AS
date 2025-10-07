@@ -54,6 +54,10 @@ app.config(function ($routeProvider, $locationProvider) {
     $locationProvider.hashPrefix("")
 
     $routeProvider
+    .when("/", {
+        templateUrl: "/login",
+        controller: "loginCtrl"
+    })
     .when("/rentas", {
         templateUrl: "/rentas",
         controller: "rentasCtrl"
@@ -1000,6 +1004,7 @@ app.controller("decoracionesCtrl", function ($scope, $http) {
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
+
 
 
 
