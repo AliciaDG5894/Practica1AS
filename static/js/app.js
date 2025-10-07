@@ -549,6 +549,111 @@ app.controller("loginCtrl", function ($scope, $http, $rootScope) {
     })
 })
 
+app.controller("rentasCtrl", function ($scope, $http, $rootScope) {
+    function buscarRentas() {
+        $("#tbodyRentas").html(`<tr>
+            <th colspan="5" class="text-center">
+                <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+            </th>
+        </tr>`)
+        $.get("rentas/buscar", {
+            busqueda: ""
+        }, function (rentas) {
+            enableAll()
+            $("#tbodyRentas").html("")
+            for (let x in rentas) {
+                const renta = rentas[x]
+
+                $("#tbodyRentas").append(`<tr>
+                    <td>${renta.idRenta}</td>
+                    <td>${renta.idCliente}</td>
+                    <td>${renta.idTraje}</td>
+                    <td>${renta.descripcion}</td>
+                    <td>${renta.fechaHoraInicio}</td>
+                    <td>${renta.echaHoraFin}</td>
+                    <td>
+                        <button class="btn btn-info btn-ingredientes me-1 mb-1 while-waiting" data-id="${renta.idRenta}">Ver ingredientes...</button>
+                        <button class="btn btn-danger btn-eliminar while-waiting" data-id="${renta.idRenta}">Eliminar</button>
+                    </td>
+                </tr>`)
+            }
+        })
+        disableAll()
+    }
+
+    buscarRentas()
+    
+    let preferencias = $rootScope.preferencias
+
+    Pusher.logToConsole = true
+
+    const pusher = new Pusher("b51b00ad61c8006b2e6f", {
+        cluster: "us2"
+    })
+    const channel = pusher.subscribe("canalRentas")
+
+    $(document).on("submit", "#frmRenta", function (event) {
+        event.preventDefault()
+
+        $.post("renta", {
+            id: "",
+            cliente: $("#txtIdCliente").val(),
+            traje: $("#txtIdTraje").val(),
+            descripcion: $("#txtDescripcion").val(),
+            fechahorainicio: $("#txtFechaInicio").val(),
+            fechahorafin: $("#txttxtFechaFin").val(),
+
+        }, function (respuesta) {
+            enableAll()
+        })
+        disableAll()
+    })
+
+    $(document).on("click", "#chkActualizarAutoTbodyRentas", function (event) {
+        if (this.checked) {
+            channel.bind("eventoRentas", function(data) {
+                // alert(JSON.stringify(data))
+                buscarProductos()
+            })
+            return
+        }
+
+        channel.unbind("eventoRentas")
+    })
+
+    // $(document).on("click", ".btn-ingredientes", function (event) {
+    //     const id = $(this).data("id")
+
+    //     $.get(`productos/ingredientes/${id}`, function (html) {
+    //         modal(html, "Ingredientes", [
+    //             {html: "Aceptar", class: "btn btn-secondary", fun: function (event) {
+    //                 closeModal()
+    //             }}
+    //         ])
+    //     })
+    // })
+
+    $(document).on("click", ".btn-eliminar", function (event) {
+        const id = $(this).data("id")
+
+        modal("Eliminar esta renta?", 'Confirmaci&oacute;n', [
+            {html: "No", class: "btn btn-secondary", dismiss: true},
+            {html: "Sí", class: "btn btn-danger while-waiting", defaultButton: true, fun: function () {
+                $.post(`renta/eliminar`, {
+                    id: id
+                }, function (respuesta) {
+                    enableAll()
+                    closeModal()
+                })
+                disableAll()
+            }}
+        ])
+    })
+})
+
+
 app.controller("clientesCtrl", function ($scope, $http) {
 
     function cargarTablaClientes() {
@@ -790,4 +895,5 @@ app.controller("decoracionesCtrl", function ($scope, $http) {
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
+
 
