@@ -226,17 +226,23 @@ app.run(["$rootScope", "$location", "$timeout", function($rootScope, $location, 
 
 
             // swipe
-            if (path.indexOf("productos") != -1) {
+            if (path.indexOf("rentas") != -1) {
                 $rootScope.leftView      = ""
-                $rootScope.rightView     = "Ventas"
+                $rootScope.rightView     = "clientes"
                 $rootScope.leftViewLink  = ""
-                $rootScope.rightViewLink = "#/ventas"
+                $rootScope.rightViewLink = "#/clientes"
+            }
+            else if (path.indexOf("clientes") != -1) {
+                $rootScope.leftView      = "rentas"
+                $rootScope.rightView     = "trajes"
+                $rootScope.leftViewLink  = "#/rentas"
+                $rootScope.rightViewLink = "#/trajes"
             }
             else if (path.indexOf("ventas") != -1) {
-                $rootScope.leftView      = "Productos"
-                $rootScope.rightView     = "Notificaciones"
-                $rootScope.leftViewLink  = "#/productos"
-                $rootScope.rightViewLink = "#/notificaciones"
+                $rootScope.leftView      = "clientes"
+                $rootScope.rightView     = ""
+                $rootScope.leftViewLink  = "#/clientes"
+                $rootScope.rightViewLink = ""
             }
             else {
                 $rootScope.leftView      = ""
@@ -1004,6 +1010,7 @@ app.controller("decoracionesCtrl", function ($scope, $http) {
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
+
 
 
 
