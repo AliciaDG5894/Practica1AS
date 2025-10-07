@@ -268,12 +268,47 @@
 
             <div class="offcanvas-body">
               <ul class="navbar-nav justify-content-end flex-grow-1 gap-1 gap-md-5 pe-3">
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle active" href="#" id="dropdownHome" data-bs-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">Inicio</a>
+                </li>
                 <li class="nav-item">
                   <a class="nav-link" href="./dashboard">App</a>
                 </li>
               </ul>
             </div>
           </div>
+        </div>
+
+        <div class="col-3 col-lg-auto">
+          <ul class="list-unstyled d-flex m-0">
+            <li class="d-none d-lg-block">
+              <a href="{{ url_for('landingPage') }}" class="text-uppercase mx-3">Rentar <span class="wishlist-count"></span>
+              </a>
+            </li>
+            <li class="d-lg-none">
+              <a href="#" class="mx-2">
+                <svg width="24" height="24" viewBox="0 0 24 24">
+                  <use xlink:href="#heart"></use>
+                </svg>
+              </a>
+            </li>
+            <li class="d-lg-none">
+              <a href="#" class="mx-2" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart"
+                aria-controls="offcanvasCart">
+                <svg width="24" height="24" viewBox="0 0 24 24">
+                  <use xlink:href="#cart"></use>
+                </svg>
+              </a>
+            </li>
+            <li class="search-box" class="mx-2">
+              <a href="#search" class="search-button">
+                <svg width="24" height="24" viewBox="0 0 24 24">
+                  <use xlink:href="#search"></use>
+                </svg>
+              </a>
+            </li>
+          </ul>
         </div>
 
       </div>
@@ -395,6 +430,96 @@
     </div>
   </section>
 
+  <section class="features py-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-3 text-center" data-aos="fade-in" data-aos-delay="0">
+          <div class="py-5">
+            <svg width="38" height="38" viewBox="0 0 24 24">
+              <use xlink:href="#calendar"></use>
+            </svg>
+            <h4 class="element-title text-capitalize my-3">Renta</h4>
+          </div>
+        </div>
+        <div class="col-md-3 text-center" data-aos="fade-in" data-aos-delay="300">
+          <div class="py-5">
+            <svg width="38" height="38" viewBox="0 0 24 24">
+              <use xlink:href="#shopping-bag"></use>
+            </svg>
+            <h4 class="element-title text-capitalize my-3">Trajes</h4>
+          </div>
+        </div>
+        <div class="col-md-3 text-center" data-aos="fade-in" data-aos-delay="900">
+          <div class="py-5">
+            <svg width="38" height="38" viewBox="0 0 24 24">
+              <use xlink:href="#arrow-cycle"></use>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="categories overflow-hidden">
+    <div class="container">
+      <div class="open-up" data-aos="zoom-out">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="cat-item image-zoom-effect">
+              <div class="image-holder">
+                <a href="{{ url_for('landingPage') }}">
+                  <img src="{{ url_for('static', filename='landing-page/images/cat-item1.jpg') }}" alt="categories" class="product-image img-fluid">
+                </a>
+              </div>
+              <div class="category-content">
+                <div class="product-button">
+                  <a href="{{ url_for('landingPage') }}" class="btn btn-common text-uppercase">Comprar</a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="cat-item image-zoom-effect">
+              <div class="image-holder">
+                <a href="{{ url_for('landingPage') }}">
+                  <img src="{{ url_for('static', filename='landing-page/images/cat-item2.jpg') }}" alt="categories" class="product-image img-fluid">
+                </a>
+              </div>
+              <div class="category-content">
+                <div class="product-button">
+                  <a href="{{ url_for('landingPage') }}" class="btn btn-common text-uppercase">Rentar</a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="cat-item image-zoom-effect">
+              <div class="image-holder">
+                <a href="{{ url_for('landingPage') }}">
+                  <img src="{{ url_for('static', filename='landing-page/images/cat-item3.jpg') }}" alt="categories" class="product-image img-fluid">
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="collection bg-light position-relative py-5">
+    <div class="container">
+      <div class="row">
+        <div class="title-xlarge text-uppercase txt-fx domino">Trajes</div>
+        <div class="collection-item d-flex flex-wrap my-5">
+          <div class="col-md-6 column-container">
+            <div class="image-holder">
+              <img src="{{ url_for('static', filename='landing-page/images/single-image-2.jpg') }}" alt="collection" class="product-image img-fluid">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
   <script src="{{ url_for('static', filename='landing-page/js/jquery.min.js') }}"></script>
   <script src="{{ url_for('static', filename='landing-page/js/plugins.js') }}"></script>
   <script src="{{ url_for('static', filename='landing-page/js/SmoothScroll.js') }}"></script>
