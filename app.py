@@ -51,6 +51,34 @@ def pusherRentas():
     pusher_client.trigger("canalRentas", "eventoRentas", {"message": "Hola Mundo!"})
     return make_response(jsonify({}))
 
+def pusherClientes():
+    import pusher
+    
+    pusher_client = pusher.Pusher(
+    app_id="2046017",
+    key="b51b00ad61c8006b2e6f",
+    secret="d2ec35aa5498a18af7bf",
+    cluster="us2",
+    ssl=True
+    )
+    
+    pusher_client.trigger("canalClientes", "eventoClientes", {"message": "Hola Mundo!"})
+    return make_response(jsonify({}))
+
+# TRAJES
+def pusherProductos():
+    import pusher
+    
+    pusher_client = pusher.Pusher(
+    app_id="2046017",
+    key="b51b00ad61c8006b2e6f",
+    secret="d2ec35aa5498a18af7bf",
+    cluster="us2",
+    ssl=True
+    )
+    
+    pusher_client.trigger("canalTrajes", "eventoTrajes", {"message": "Hola Mundo!"})
+
 
 def login(fun):
     @wraps(fun)
@@ -611,3 +639,4 @@ def buscarTrajes():
         con.close()
 
     return make_response(jsonify(registros))
+
