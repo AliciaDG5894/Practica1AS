@@ -272,3 +272,183 @@ def eliminarRenta():
     pusherRentas()
 
     return make_response(jsonify({}))
+
+# CLIENTES
+
+@app.route("/clientes")
+def clientes():
+    return render_template("clientes.html")
+
+@app.route("/tbodyClientes")
+def tbodyClientes():
+    if not con.is_connected():
+        con.reconnect()
+
+    cursor = con.cursor(dictionary=True)
+    sql    = """
+    SELECT idCliente,
+           nombreCliente,
+           telefono,
+           correoElectronico
+
+    FROM clientes
+
+    ORDER BY idCliente DESC
+
+    LIMIT 10 OFFSET 0
+    """
+
+    cursor.execute(sql)
+    registros = cursor.fetchall()
+
+    # Si manejas fechas y horas
+    """
+    for registro in registros:
+        fecha_hora = registro["Fecha_Hora"]
+
+        registro["Fecha_Hora"] = fecha_hora.strftime("%Y-%m-%d %H:%M:%S")
+        registro["Fecha"]      = fecha_hora.strftime("%d/%m/%Y")
+        registro["Hora"]       = fecha_hora.strftime("%H:%M:%S")
+    """
+
+    return render_template("tbodyClientes.html", clientes=registros)
+
+@app.route("/clientes/buscar", methods=["GET"])
+def buscarClientes():
+    if not con.is_connected():
+        con.reconnect()
+
+    args     = request.args
+    busqueda = args["busqueda"]
+    busqueda = f"%{busqueda}%"
+    
+    cursor = con.cursor(dictionary=True)
+    sql    = """
+    SELECT idCliente,
+           nombreCliente,
+           telefono,
+           correoElectronico
+
+    FROM clientes
+
+    WHERE nombreCliente LIKE %s
+    OR    telefono          LIKE %s
+    OR    correoElectronico     LIKE %s
+
+    ORDER BY idCliente DESC
+
+    LIMIT 10 OFFSET 0
+    """
+    val    = (busqueda, busqueda, busqueda)
+
+    try:
+        cursor.execute(sql, val)
+        registros = cursor.fetchall()
+
+        # Si manejas fechas y horas
+        """
+        for registro in registros:
+            fecha_hora = registro["Fecha_Hora"]
+
+            registro["Fecha_Hora"] = fecha_hora.strftime("%Y-%m-%d %H:%M:%S")
+            registro["Fecha"]      = fecha_hora.strftime("%d/%m/%Y")
+            registro["Hora"]       = fecha_hora.strftime("%H:%M:%S")
+        """
+
+    except mysql.connector.errors.ProgrammingError as error:
+        print(f"Ocurrió un error de programación en MySQL: {error}")
+        registros = []
+
+    finally:
+        cursor.close()
+
+    return make_response(jsonify(registros))
+
+@app.route("/cliente", methods=["POST"])
+# Usar cuando solo se quiera usar CORS en rutas específicas
+# @cross_origin()
+def guardarCliente():
+    if not con.is_connected():
+        con.reconnect()
+
+    idCliente = request.form.get("idCliente")
+    nombre      = request.form["nombreCliente"]
+    telefono      = request.form["telefono"]
+    correoElectronico = request.form["correoElectronico"]
+    
+    # fechahora   = datetime.datetime.now(pytz.timezone("America/Matamoros"))
+    
+    cursor = con.cursor()
+
+    if idCliente:
+        sql = """
+        UPDATE clientes
+
+        SET nombreCliente = %s,
+            telefono          = %s,
+            correoElectronico     = %s
+
+        WHERE idCliente = %s
+        """
+        val = (nombre, telefono, correoElectronico, idCliente)
+    else:
+        sql = """
+        INSERT INTO clientes (nombreCliente, telefono, correoElectronico)
+                    VALUES    (%s,          %s,      %s)
+        """
+        val =                 (nombre, telefono, correoElectronico)
+    
+    cursor.execute(sql, val)
+    con.commit()
+    con.close()
+
+    pusherClientes()
+    
+    return make_response(jsonify({}))
+
+@app.route("/cliente/<int:id>")
+def editarClientes(id):
+    if not con.is_connected():
+        con.reconnect()
+
+    cursor = con.cursor(dictionary=True)
+    sql    = """
+    SELECT idCliente, nombreCliente, telefono, correoElectronico
+
+    FROM clientes
+
+    WHERE idCliente = %s
+    """
+    val    = (id,)
+
+    cursor.execute(sql, val)
+    registros = cursor.fetchall()
+    con.close()
+
+    return make_response(jsonify(registros))
+
+@app.route("/clientes/eliminar", methods=["POST"])
+def eliminarCliente():
+    try:
+        if not con.is_connected():
+            con.reconnect()
+
+        idCliente = request.form.get("id")
+
+        cursor = con.cursor()
+        sql = "DELETE FROM clientes WHERE idCliente = %s"
+        val = (idCliente,)
+
+        cursor.execute(sql, val)
+        con.commit()
+        con.close()
+
+        pusherClientes()
+
+        return make_response(jsonify({"status": "ok"}))
+
+    except Exception as e:
+        print("Error eliminando cliente:", e)
+        return make_response(jsonify({"error": str(e)}), 500)
+
+
