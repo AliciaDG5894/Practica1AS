@@ -337,8 +337,7 @@ def tbodyClientes():
 
 @app.route("/clientes/buscar", methods=["GET"])
 def buscarClientes():
-    if not con.is_connected():
-        con.reconnect()
+    con = con_pool.get_connection()
 
     args     = request.args
     busqueda = args["busqueda"]
@@ -390,8 +389,7 @@ def buscarClientes():
 # Usar cuando solo se quiera usar CORS en rutas específicas
 # @cross_origin()
 def guardarCliente():
-    if not con.is_connected():
-        con.reconnect()
+    con = con_pool.get_connection()
 
     idCliente = request.form.get("idCliente")
     nombre      = request.form["nombreCliente"]
@@ -430,9 +428,8 @@ def guardarCliente():
 
 @app.route("/cliente/<int:id>")
 def editarClientes(id):
-    if not con.is_connected():
-        con.reconnect()
-
+    con = con_pool.get_connection()
+    
     cursor = con.cursor(dictionary=True)
     sql    = """
     SELECT idCliente, nombreCliente, telefono, correoElectronico
@@ -627,6 +624,7 @@ def buscarTrajes():
         con.close()
 
     return make_response(jsonify(registros))
+
 
 
 
