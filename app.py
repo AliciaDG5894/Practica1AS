@@ -272,7 +272,7 @@ def eliminarRenta():
     return make_response(jsonify({"status": "ok"}))
 
 @app.route("/rentas/<int:id>")
-def editarTrajes(id):
+def editarRenta(id):
     con = con_pool.get_connection()
 
     cursor = con.cursor(dictionary=True)
@@ -292,7 +292,7 @@ def editarTrajes(id):
     return make_response(jsonify(registros))
 
 @app.route("/rentas/buscar", methods=["GET"])
-def buscarRentas():
+def buscarRenta():
     con = con_pool.get_connection()
 
     args     = request.args
@@ -656,12 +656,6 @@ def buscarTrajes():
         con.close()
 
     return make_response(jsonify(registros))
-
-
-
-
-
-
 
 
 
