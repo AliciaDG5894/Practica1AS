@@ -486,9 +486,7 @@ def trajes():
 
 @app.route("/tbodyTrajes")
 def tbodyTrajes():
-    if not con.is_connected():
-        con.reconnect()
-    
+    con = con_pool.get_connection()
     cursor = con.cursor(dictionary=True)
     sql    = """
     SELECT IdTraje,
@@ -519,8 +517,7 @@ def tbodyTrajes():
 
 @app.route("/trajes/guardar", methods=["POST", "GET"])
 def guardarTraje():
-    if not con.is_connected():
-        con.reconnect()
+    con = con_pool.get_connection()
 
     if request.method == "POST":
         data = request.get_json(silent=True) or request.form
@@ -560,8 +557,7 @@ def guardarTraje():
 
 @app.route("/trajes/eliminar", methods=["POST", "GET"])
 def eliminartraje():
-    if not con.is_connected():
-        con.reconnect()
+    con = con_pool.get_connection()
 
     if request.method == "POST":
         IdTraje = request.form.get("id")
@@ -582,8 +578,7 @@ def eliminartraje():
 
 @app.route("/trajes/<int:id>")
 def editarTrajes(id):
-    if not con.is_connected():
-        con.reconnect()
+    con = con_pool.get_connection()
 
     cursor = con.cursor(dictionary=True)
     sql    = """
@@ -603,8 +598,7 @@ def editarTrajes(id):
 
 @app.route("/trajes/buscar", methods=["GET"])
 def buscarTrajes():
-    if not con.is_connected():
-        con.reconnect()
+    con = con_pool.get_connection()
 
     args     = request.args
     busqueda = args["busqueda"]
@@ -639,4 +633,5 @@ def buscarTrajes():
         con.close()
 
     return make_response(jsonify(registros))
+
 
