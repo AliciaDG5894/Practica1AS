@@ -779,6 +779,11 @@ app.controller("trajesCtrl", function ($scope, $http) {
             .then(data => {
                 if (data.length > 0) {      
                     const traje = data[0];
+
+                    console.log("Nombre:", traje.nombreTraje);
+                    console.log("Descripción:", traje.descripcion);
+                    console.log("ID del traje:", traje.IdTraje);
+                    
                     document.getElementById('txtNombre').value = traje.nombreTraje;
                     document.getElementById('txtDescripcion').value = traje.descripcion;
                     document.getElementById('txtIdTraje').value = traje.IdTraje;
@@ -1010,6 +1015,7 @@ app.controller("decoracionesCtrl", function ($scope, $http) {
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
+
 
 
 
