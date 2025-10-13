@@ -559,109 +559,116 @@ app.controller("loginCtrl", function ($scope, $http, $rootScope) {
     })
 })
 
-app.controller("rentasCtrl", function ($scope, $http, $rootScope) {
-    function buscarRentas() {
-        $("#tbodyRentas").html(`<tr>
-            <th colspan="5" class="text-center">
-                <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
-                    <span class="visually-hidden">Cargando...</span>
-                </div>
-            </th>
-        </tr>`)
-        $.get("rentas/buscar", {
-            busqueda: ""
-        }, function (rentas) {
-            enableAll()
-            $("#tbodyRentas").html("")
-            for (let x in rentas) {
-                const renta = rentas[x]
-
-                $("#tbodyRentas").append(`<tr>
-                    <td>${renta.idRenta}</td>
-                    <td>${renta.idCliente}</td>
-                    <td>${renta.idTraje}</td>
-                    <td>${renta.descripcion}</td>
-                    <td>${renta.fechaHoraInicio}</td>
-                    <td>${renta.echaHoraFin}</td>
-                    <td>
-                        <button class="btn btn-info btn-ingredientes me-1 mb-1 while-waiting" data-id="${renta.idRenta}">Ver ingredientes...</button>
-                        <button class="btn btn-danger btn-eliminar while-waiting" data-id="${renta.idRenta}">Eliminar</button>
-                    </td>
-                </tr>`)
-            }
-        })
-        disableAll()
+app.controller("rentasCtrl", function ($scope, $http) {
+    function cargarTablaRentas() {
+        $.get("/tbodyRentas", function(html) {
+            $("#tbodyRentas").html(html);
+        });
     }
 
-    buscarRentas()
-    
-    let preferencias = $rootScope.preferencias
+    cargarTablaRentas();
 
-    Pusher.logToConsole = true
+    Pusher.logToConsole = true;
+    var pusher = new Pusher("b51b00ad61c8006b2e6f", { cluster: "us2" });
+    var channel = pusher.subscribe("canalRentas");
+    channel.bind("eventoRentas", function(data) {
+        cargarTablaRentas();
+    });
 
-    const pusher = new Pusher("b51b00ad61c8006b2e6f", {
-        cluster: "us2"
-    })
-    const channel = pusher.subscribe("canalRentas")
+     $(document).on("click", "#btnBuscarRenta", function() {
+        const busqueda = $("#txtBuscarRenta").val().trim();
 
-    $(document).on("submit", "#frmRenta", function (event) {
-        event.preventDefault()
-
-        $.post("renta", {
-            id: "",
-            cliente: $("#txtIdCliente").val(),
-            traje: $("#txtIdTraje").val(),
-            descripcion: $("#txtDescripcion").val(),
-            fechahorainicio: $("#txtFechaInicio").val(),
-            fechahorafin: $("#txttxtFechaFin").val(),
-
-        }, function (respuesta) {
-            enableAll()
-        })
-        disableAll()
-    })
-
-    $(document).on("click", "#chkActualizarAutoTbodyRentas", function (event) {
-        if (this.checked) {
-            channel.bind("eventoRentas", function(data) {
-                // alert(JSON.stringify(data))
-                buscarProductos()
-            })
-            return
+        if(busqueda === "") {
+            cargarTablaRentas();
+            return;
         }
 
-        channel.unbind("eventoRentas")
-    })
+        $.get("/rentas/buscar", { busqueda: busqueda }, function(registros) {
+            let trsHTML = "";
+            registros.forEach(renta => {
+                trsHTML += `
+                    <tr>
+                        <td>${renta.idRenta}</td>
+                        <td>${renta.idCliente}</td>
+                        <td>${renta.idTraje}</td>
+                        <td>${renta.descripcion}</td>
+                        <td>${renta.fechaHoraInicio}</td>
+                        <td>${renta.fechaHoraFin}</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm btn-eliminar" data-id="${renta.idRenta}">Eliminar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            $("#tbodyRentas").html(trsHTML);
+        }).fail(function(xhr){
+            console.error("Error al buscar rentas:", xhr.responseText);
+        });
+    });
 
-    // $(document).on("click", ".btn-ingredientes", function (event) {
-    //     const id = $(this).data("id")
+    // Permitir Enter en input
+    $("#txtBuscarRenta").on("keypress", function(e) {
+        if(e.which === 13) {
+            $("#btnBuscarRenta").click();
+        }
+    });
 
-    //     $.get(`productos/ingredientes/${id}`, function (html) {
-    //         modal(html, "Ingredientes", [
-    //             {html: "Aceptar", class: "btn btn-secondary", fun: function (event) {
-    //                 closeModal()
-    //             }}
-    //         ])
-    //     })
-    // })
+    $(document).on("submit", "#frmRenta", function (event) {
+        event.preventDefault();
 
-    $(document).on("click", ".btn-eliminar", function (event) {
-        const id = $(this).data("id")
+        const idRenta = $("#idRenta").val(); 
 
-        modal("Eliminar esta renta?", 'Confirmaci&oacute;n', [
-            {html: "No", class: "btn btn-secondary", dismiss: true},
-            {html: "Sí", class: "btn btn-danger while-waiting", defaultButton: true, fun: function () {
-                $.post(`renta/eliminar`, {
-                    id: id
-                }, function (respuesta) {
-                    enableAll()
-                    closeModal()
-                })
-                disableAll()
-            }}
-        ])
-    })
-})
+        $.post("/rentas", {
+            idRenta: idRenta,
+            cliente:         $("#txtIdCliente").val(),
+            traje:           $("#txtIdTraje").val(),
+            descripcion:     $("#txtDescripcion").val(),
+            fechaHoraInicio: $("#txtFechaInicio").val(),
+            fechaHoraFin:    $("#txttxtFechaFin").val()
+
+        }, function(response){
+            console.log("Renta guardada o actualizada correctamente");
+            $("#frmRenta")[0].reset();
+            $("#idRenta").val(""); // limpiar campo oculto
+            cargarTablaClientes(); 
+        }).fail(function(xhr){
+            console.error("Error al guardar/actualizar renta:", xhr.responseText);
+        });
+
+    });
+
+    $(document).on("click", "#tbodyRentas .btn-eliminar", function(){
+        const id = $(this).data("id");
+        if(confirm("¿Deseas eliminar esta renta?")) {
+            $.post("/rentas/eliminar", {id: id}, function(response){
+                console.log("Renta eliminada correctamente");
+                cargarTablaRentas(); 
+            }).fail(function(xhr){
+                console.error("Error al eliminar Renta:", xhr.responseText);
+            });
+        }
+    });
+        
+    $(document).on("click", "#tbodyRentas .btn-editar", function() {
+        const id = $(this).data("id");
+        const cliente = $(this).data("IdCliente");
+        const traje = $(this).data("idtraje");
+        const descripcion = $(this).data("descripcion");
+        const fechaHoraInicio = $(this).data("fechaHoraInicio");
+        const fechaHoraFin = $(this).data("fechaHoraFin");
+
+        $("#idRenta").val(id);
+        $("#txtIdCliente").val(cliente);
+        $("#txtIdTraje").val(traje);
+        $("#txtDescripcion").val(descripcion);
+        $("#txtFechaInicio").val(fechaHoraInicio);
+        $("#txttxtFechaFin").val(fechaHoraFin);
+
+        const btnGuardar = $("#btnGuardar");
+        btnGuardar.text("Actualizar");
+        btnGuardar.removeClass("btn-primary").addClass("btn-success");
+    });
+});
 
 
 app.controller("clientesCtrl", function ($scope, $http) {
@@ -1015,6 +1022,7 @@ app.controller("decoracionesCtrl", function ($scope, $http) {
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
+
 
 
 
