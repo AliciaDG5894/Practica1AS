@@ -176,7 +176,7 @@ def tbodyRentas():
         SELECT rentas.idRenta, clientes.nombreCliente, trajes.nombreTraje, trajes.descripcion, rentas.fechaHoraInicio, rentas.fechaHoraFin
         FROM rentas
         INNER JOIN clientes ON rentas.idCliente = clientes.idCliente
-        INNER JOIN trajes ON rentas.idTraje = trajes.idTraje;
+        INNER JOIN trajes ON rentas.idTraje = trajes.idTraje
 
         ORDER BY idRenta DESC
         LIMIT 10 OFFSET 0
@@ -667,6 +667,7 @@ def buscarTrajes():
         con.close()
 
     return make_response(jsonify(registros))
+
 
 
 
