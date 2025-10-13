@@ -173,8 +173,7 @@ def tbodyRentas():
         cursor = con.cursor(dictionary=True)
 
         sql = """
-        SELECT rentas.idRenta, clientes.nombreCliente, trajes.nombreTraje, trajes.descripcion, 
-            rentas.fechaHoraInicio, rentas.fechaHoraFin
+        SELECT rentas.idRenta, clientes.nombreCliente, trajes.nombreTraje, trajes.descripcion, rentas.fechaHoraInicio, rentas.fechaHoraFin
         FROM rentas
         INNER JOIN clientes ON rentas.idCliente = clientes.idCliente
         INNER JOIN trajes ON rentas.idTraje = trajes.idTraje;
@@ -668,6 +667,7 @@ def buscarTrajes():
         con.close()
 
     return make_response(jsonify(registros))
+
 
 
 
