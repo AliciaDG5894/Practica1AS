@@ -7,7 +7,6 @@
     <td>{{ renta.fechaHoraInicio }}</td>
     <td>{{ renta.fechaHoraFin }}</td>
     <td><button class="btn btn-sm btn-danger btn-eliminar" data-id="{{ renta.idRenta}}">Eliminar</button></td>
+    <td><button class="btn btn-sm btn-warning btn-editar" data-id="{{ renta.idRenta }}" data-cliente="{{ renta.idCliente }}" data-traje="{{ cliente.idTraje }}" data-descripcion="{{ cliente.descripcion }}" data-fechaHoraInicio="{{ cliente.fechaHoraInicio }}" data-fechaHoraFin="{{ cliente.fechaHoraFin }}">Editar</button></td>
 </tr>
 {% endfor %}
-
-
