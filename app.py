@@ -168,120 +168,150 @@ def rentas():
 
 @app.route("/tbodyRentas")
 def tbodyRentas():
+    try:
+        con = con_pool.get_connection()
+        cursor = con.cursor(dictionary=True)
+
+        sql = """
+        SELECT rentas.idRenta, clientes.nombreCliente, trajes.nombreTraje, trajes.descripcion, 
+            rentas.fechaHoraInicio, rentas.fechaHoraFin
+        FROM rentas
+        INNER JOIN clientes ON rentas.idCliente = clientes.idCliente
+        INNER JOIN trajes ON rentas.idTraje = trajes.idTraje;
+
+        ORDER BY idRenta DESC
+        LIMIT 10 OFFSET 0
+        """
+
+        cursor.execute(sql)
+        registros = cursor.fetchall()
+
+        # Aquí puedes devolver HTML renderizado o JSON
+        return render_template("tbodyRentas.html", rentas=registros)
+
+    except Exception as e:
+        print("Error en /tbodyRentas:", e)
+        return make_response(jsonify({"error": str(e)}), 500)
+
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
+
+
+@app.route("/rentas/buscar", methods=["GET"])
+def buscarRentas():
     con = con_pool.get_connection()
+
+    args     = request.args
+    busqueda = args["busqueda"]
+    busqueda = f"%{busqueda}%"
+    
     cursor = con.cursor(dictionary=True)
     sql    = """
-    SELECT  idRenta,
-            idCliente,
-            idTraje,
-            descripcion,
-            fechaHoraInicio,
-            fechaHoraFin
+    SELECT idRenta,
+           idCliente,
+           idTraje,
+           descripcion,
+           fechaHoraInicio,
+           fechaHoraFin
+
     FROM rentas
+
+    WHERE idRenta LIKE %s
+    OR    idCliente         LIKE %s
+    OR    idTraje           LIKE %s
+    OR    fechaHoraInicio   LIKE %s
+    OR    fechaHoraFin      LIKE %s
 
     ORDER BY idRenta DESC
 
     LIMIT 10 OFFSET 0
     """
+    val    = (busqueda, busqueda, busqueda, busqueda)
 
-    cursor.execute(sql)
-    registros = cursor.fetchall()
+    try:
+        cursor.execute(sql, val)
+        registros = cursor.fetchall()
 
-    # Si manejas fechas y horas
-    for registro in registros:
-            inicio = registro["fechaHoraInicio"]
-            fin = registro["fechaHoraFin"]
+        # Si manejas fechas y horas
+        
+        for registro in registros:
+            inicio = registro["FechaHoraInicio"]
+            fin = registro["FechaHoraFin"]
 
-            registro["fechaInicioFormato"] = inicio.strftime("%d/%m/%Y")
-            registro["horaInicioFormato"]  = inicio.strftime("%H:%M:%S")
+            # registro["fechahoraInicio"] = inicio.strftime("%Y-%m-%d %H:%M:%S")
+            registro["fechaInicio"] = inicio.strftime("%d/%m/%Y")
+            registro["horaInicio"]  = inicio.strftime("%H:%M:%S")
 
-            registro["fechaFinFormato"] = fin.strftime("%d/%m/%Y")
-            registro["horaFinFormato"]  = fin.strftime("%H:%M:%S")
-    
+            # registro["fechahoraFin"] = fin.strftime("%Y-%m-%d %H:%M:%S")
+            registro["fechaFin"]    = fin.strftime("%d/%m/%Y")
+            registro["horaFin"]     = fin.strftime("%H:%M:%S")
+        
+    except mysql.connector.errors.ProgrammingError as error:
+        print(f"Ocurrió un error de programación en MySQL: {error}")
+        registros = []
 
-    return render_template("tbodyRentas.html", rentas=registros)
+    finally:
+        cursor.close()
 
-@app.route("/rentas/guardar", methods=["POST", "GET"])
-def guardarRenta():
+    return make_response(jsonify(registros))
+
+@app.route("/rentas", methods=["POST"])
+# Usar cuando solo se quiera usar CORS en rutas específicas
+# @cross_origin()
+def guardarRentas():
     con = con_pool.get_connection()
 
-    if request.method == "POST":
-        data = request.get_json(silent=True) or request.form
-        idRenta = data.get("idRenta")
-        cliente = data.get("txtIdCliente")
-        traje = data.get("txtIdTraje")
-        descripcion = data.get("txtDescripcion")
-        fechahorainicio = data.get("txttxtFechaInicio")
-        fechahorafin = data.get("txttxtFechaFin")
-    else: 
-        cliente = request.args.get("idCliente")
-        cliente = request.args.get("idTraje")
-        descripcion = request.args.get("descripcion")
-        fechahorainicio = request.args.get("descripcion")
-        fechahorafin = request.args.get("descripcion")
-    if not nombre or not descripcion:
-        return jsonify({"error": "Faltan parámetros"}), 400
-        
-    cursor = con.cursor()
+    idRenta         = request.form.get("idRenta")
+    cliente         = request.form["idCliente"]
+    traje           = request.form["idTraje"]
+    descripcion     = request.form["descripcion"]
+    fechahorainicio = datetime.datetime.now(pytz.timezone("America/Matamoros"))
+    fechahorafin    = datetime.datetime.now(pytz.timezone("America/Matamoros"))
     
+    cursor = con.cursor()
+
     if idRenta:
         sql = """
-        UPDATE  rentas
-            SET idCliente       = %s,
-                idTraje         = %s,
-                descripcion     = %s,
-                fechaHoraInicio = %s,
-                fechaHoraFin
+        UPDATE rentas
+
+        SET idCliente        = %s,
+            idTraje          = %s,
+            descripcion      = %s,
+            fechaHoraInicio  = %s,
+            fechHoraFin      = %s
+
         WHERE idRenta = %s
         """
-        cursor.execute(sql, (cliente, traje, descripcion, fechahorainicio, fechahorafin, id))
-        
-        pusherRentas()
-    else: 
-        sql = """
-        INSERT INTO rentas (idCliente, idTraje, descripcion, fechaHoraInicio, fechaHoraFin)
-        VALUES             (%s, %s, %s, %s, %s)
-        """
-        cursor.execute(sql, (nombre, descripcion))
-
-        pusherRentas()
-
-    con.commit()
-    con.close()
-    return make_response(jsonify({"mensaje": "Renta guardado correctamente"}))
-
-@app.route("/rentas/eliminar", methods=["POST", "GET"])
-def eliminarRenta():
-    con = con_pool.get_connection()
-
-    if request.method == "POST":
-        IdTraje = request.form.get("id")
+        val = (cliente, traje, descripcion, fechahorainicio, fechahorafin)
     else:
-        IdTraje = request.args.get("id")
-
-    cursor = con.cursor()
-    sql = "DELETE FROM rentas WHERE IdRenta = %s"
-    val = (IdTraje,)
-
+        sql = """
+        INSERT INTO rentas (idCliente, idTraje, descripcion, FechaHoraInicio, fechaHoraFin)
+                    VALUES (   %s,       %s,        %s,            %s,             %s)
+        """
+        val =              (cliente, traje, descripcion, fechahorainicio, fechahorafin)
+    
     cursor.execute(sql, val)
     con.commit()
     con.close()
 
     pusherRentas()
-
-    return make_response(jsonify({"status": "ok"}))
+    
+    return make_response(jsonify({}))
 
 @app.route("/rentas/<int:id>")
-def editarRenta(id):
+def editarRentas(id):
     con = con_pool.get_connection()
-
+    
     cursor = con.cursor(dictionary=True)
     sql    = """
     SELECT idRenta, idCliente, idTraje, descripcion, fechaHoraInicio, fechaHoraFin
 
     FROM rentas
 
-    WHERE IdRenta = %s
+    WHERE idRenta = %s
     """
     val    = (id,)
 
@@ -291,47 +321,29 @@ def editarRenta(id):
 
     return make_response(jsonify(registros))
 
-@app.route("/rentas/buscar", methods=["GET"])
-def buscarRenta():
-    con = con_pool.get_connection()
-
-    args     = request.args
-    busqueda = args["busqueda"]
-    busqueda = f"%{busqueda}%"
-    
-    cursor = con.cursor(dictionary=True)
-    sql    = """
-    SELECT  idRenta
-            idCliente,
-            idTraje,
-            descripcion,
-            fechaHoraInicio,
-            fechaHoraFin
-
-    FROM rentas
-
-    WHERE idCliente LIKE %s
-    OR    idTraje          LIKE %s
-
-    ORDER BY idRenta DESC
-
-    LIMIT 10 OFFSET 0
-    """
-    val    = (busqueda, busqueda)
-
+@app.route("/rentas/eliminar", methods=["POST"])
+def eliminarRentas():
     try:
+        con = con_pool.get_connection()
+        cursor = con.cursor()
+
+        idRenta = request.form.get("id")
+
+        cursor = con.cursor()
+        sql = "DELETE FROM rentas WHERE idRenta = %s"
+        val = (idRenta,)
+
         cursor.execute(sql, val)
-        registros = cursor.fetchall()
-
-    except mysql.connector.errors.ProgrammingError as error:
-        print(f"Ocurrió un error de programación en MySQL: {error}")
-        registros = []
-
-    finally:
+        con.commit()
         con.close()
 
-    return make_response(jsonify(registros))
+        pusherRentas()
 
+        return make_response(jsonify({"status": "ok"}))
+
+    except Exception as e:
+        print("Error eliminando renta:", e)
+        return make_response(jsonify({"error": str(e)}), 500)
 
 @app.route("/clientes")
 def clientes():
@@ -656,6 +668,7 @@ def buscarTrajes():
         con.close()
 
     return make_response(jsonify(registros))
+
 
 
 
