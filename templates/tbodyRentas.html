@@ -1,8 +1,8 @@
 {% for renta in rentas %}
 <tr>
     <td>{{ renta.idRenta }}</td>
-    <td>{{ renta.idCliente }}</td>
-    <td>{{ renta.idTraje }}</td>
+    <td>{{ renta.nombreCliente }}</td>
+    <td>{{ renta.nombreTraje }}</td>
     <td>{{ renta.descripcion }}</td>
     <td>{{ renta.fechaHoraInicio }}</td>
     <td>{{ renta.fechaHoraFin }}</td>
@@ -10,4 +10,5 @@
     <td><button class="btn btn-sm btn-warning btn-editar" data-id="{{ renta.idRenta }}" data-cliente="{{ renta.idCliente }}" data-traje="{{ renta.idTraje }}" data-descripcion="{{ renta.descripcion }}" data-fechaHoraInicio="{{ renta.fechaHoraInicio }}" data-fechaHoraFin="{{ renta.fechaHoraFin }}">Editar</button></td>
 </tr>
 {% endfor %}
+
 
